@@ -59,6 +59,11 @@ app.post('/contact', (req, res) => {
     .catch((err) => res.status(500).json(err));
 });
 
+
+app.post('/',(req,res)=>{
+  console.log("testing my fist api hosting using vercel")
+})
+
 app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
 });
