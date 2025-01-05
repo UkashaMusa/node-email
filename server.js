@@ -14,7 +14,8 @@ app.use(cors());
 
 // Create a transporter object using your email service's SMTP settings
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Gmail or another service
+  host: 'smtp.gmail.com',
+  port: 587, // Gmail or another service
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
