@@ -4,9 +4,9 @@ const cors = require("cors");
 require('dotenv').config();  // Load environment variables
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors());  // Allow CORS requests
 app.use(express.json());  // To parse JSON request body
 
 // Access environment variables
@@ -59,11 +59,10 @@ app.post('/contact', (req, res) => {
     .catch((err) => res.status(500).json(err));
 });
 
-
-app.get('/',(req,res)=>{
-  res.send("testing my fist api hosting using vercel")
-  console.log("testing my fist api hosting using vercel")
-})
+app.get('/', (req, res) => {
+  res.send("testing my first api hosting using vercel");
+  console.log("testing my first api hosting using vercel");
+});
 
 app.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
