@@ -60,7 +60,8 @@ app.post('/contact', (req, res) => {
 });
 
 
-app.post('/',(req,res)=>{
+app.get('/',(req,res)=>{
+  res.send("testing my fist api hosting using vercel")
   console.log("testing my fist api hosting using vercel")
 })
 
