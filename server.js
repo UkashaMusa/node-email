@@ -1,69 +1,50 @@
-const express = require("express");
-const nodemailer = require("nodemailer");
-const cors = require("cors");
-require('dotenv').config();  // Load environment variables
+// server.js
+require('dotenv').config();
+const express = require('express');
+const nodemailer = require('nodemailer');
+const cors = require('cors'); // For handling cross-origin requests
 
 const app = express();
-const port = process.env.PORT || 5000;
 
-app.use(cors());  // Allow CORS requests
-app.use(express.json());  // To parse JSON request body
+// Middleware to parse incoming JSON data
+app.use(express.json());
 
-// Access environment variables
-var myemail = process.env.SENDER_EMAIL;
-var mypassword = process.env.APPLICATION_PASSWORD;
-const receiverEmail = "umusa7677@gmail.com"; // Hardcoding the recipient's email
+// Enable CORS to allow frontend to communicate with backend (if on different ports)
+app.use(cors());
 
-// Logging for debugging
-console.log('Sender Email:', myemail);
-console.log('Receiver Email:', receiverEmail);
+// Create a transporter object using your email service's SMTP settings
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Gmail or another service
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-// Send email function
-function sendEmail(formData) {
-  return new Promise((resolve, reject) => {
-    var transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: myemail,
-        pass: mypassword,
-      },
-    });
-
-    const mail_configs = {
-      from: formData.email, // Sender's email
-      to: receiverEmail, // Receiver's email
-      subject: "New Contact Message",
-      html: `
-        <h1>New Message from ${formData.name}</h1>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Message:</strong> ${formData.message}</p>
-      `,
-    };
-
-    transporter.sendMail(mail_configs, function (error, info) {
-      if (error) {
-        console.log(error);
-        return reject({ message: `An error occurred while sending the email.` });
-      }
-      return resolve({ message: "Email sent successfully" });
-    });
-  });
-}
-
+// POST route to handle form submission
 app.post('/contact', (req, res) => {
   const { name, email, message } = req.body;
-  const formData = { name, email, message };
 
-  sendEmail(formData)
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err));
+  const mailOptions = {
+    from: email, // sender's email
+    to: process.env.EMAIL_USER, // recipient's email (can be your email)
+    subject: `Message from ${name}`, // Subject of the email
+    text: message, // Plain text message body
+    html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`, // HTML message body
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error:', error);
+      return res.status(500).json({ message: 'Failed to send message' });
+    }
+    res.status(200).json({ message: 'Message sent successfully' });
+  });
 });
 
-app.get('/', (req, res) => {
-  res.send("testing my first api hosting using vercel");
-  console.log("testing my first api hosting using vercel");
-});
-
-app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}`);
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
